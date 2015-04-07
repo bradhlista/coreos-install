@@ -3,4 +3,32 @@
 ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDF6KAOXvv35ZHgaElJaeIdKvAv/3yThJq9/1pFesWRmRDMi6lLOzrtvNCdnjEcaDeaxyY8hwqac7AdSKfcK2RXC05yogHX7w4y5almODvNbZ80NKli52XbBceqj++98wvy8nPyaQaQd9xel3EbqNGLEO27M/ifvIwLxvOIozOVu5WfMawd0uCQ0QmrZxMdxFFHaOlUcrTK59262eyc3PCEcjmRx+R8gtVspzDu9qW4FHnvzWMwtFZ+GeK6WEf3/ZsoM2Al0YSnvjy8o/wWH6QOiN4ar0bWfyC3RdoGquFp9mCNgtTQLodCF+KUSVr++ZkNoBDCvvkr4AzPLcK4NPrl bjhlista@minas-tirith.local
 
+#cloud-config
+
+coreos:
+  units:
+    - name: docker-tcp.socket
+      command: start
+      enable: yes
+      content: |
+        [Unit]
+        Description=Docker Socket for the API
+
+        [Socket]
+        ListenStream=2375
+        BindIPv6Only=both
+        Service=docker.service
+
+        [Install]
+        WantedBy=sockets.target
+    - name: enable-docker-tcp.service
+      command: start
+      content: |
+        [Unit]
+        Description=Enable the Docker Socket for the API
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/systemctl enable docker-tcp.socket
+
 
